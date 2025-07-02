@@ -1,3 +1,4 @@
+//@ts-ignore
 import { logo } from "../assets";
 
 export const Hero = () => {

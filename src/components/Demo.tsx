@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+//@ts-ignore
 import { copy, linkIcon, loader, tick } from "../assets";
 import { useLazyGetSummaryQuery } from "../services/article";
 import type { ArticleDTO } from "../lib/types";
@@ -103,7 +104,10 @@ const Demo = () => {
           <p className="font-inter font-bold text-center">
             Well, that wasn't supposed to happen... <br></br>{" "}
             <span className="text-gray-700 font-normal">
-              {error?.data?.error}
+              {
+                //@ts-ignore
+                error?.data?.error
+              }
             </span>{" "}
           </p>
         ) : (

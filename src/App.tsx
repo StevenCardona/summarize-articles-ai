@@ -1,6 +1,7 @@
 import Demo from "./components/Demo";
 import { Hero } from "./components/Hero";
 
+//@ts-ignore
 import "./app.css";
 
 const App = () => {
