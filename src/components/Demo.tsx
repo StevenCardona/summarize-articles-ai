@@ -7,7 +7,7 @@ const Demo = () => {
   const [getSummary, { error, isFetching }] = useLazyGetSummaryQuery();
 
   const [article, setArticle] = useState<ArticleDTO>({} as ArticleDTO);
-
+  const [copied, setCopied] = useState("");
   const [allArticles, setAllArticles] = useState<ArticleDTO[]>([]);
 
   useEffect(() => {
@@ -34,6 +34,12 @@ const Demo = () => {
         JSON.stringify([newArticle, ...allArticles])
       );
     }
+  };
+
+  const handleCopy = (copiedUrl: string) => {
+    setCopied(copiedUrl);
+    navigator.clipboard.writeText(copiedUrl);
+    setTimeout(() => setCopied(""), 200);
   };
 
   return (
@@ -76,9 +82,10 @@ const Demo = () => {
             >
               <div className="copy_btn">
                 <img
-                  src={copy}
+                  src={copied == article.url ? tick : copy}
                   alt="copy_icon"
                   className="w-[40%] h-[40%] object-contain"
+                  onClick={(e) => handleCopy(article.url)}
                 />
               </div>
               <p className="flex-1 font-medium truncate text-gray-500 ">
