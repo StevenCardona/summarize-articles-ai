@@ -86,7 +86,7 @@ const Demo = () => {
                   src={copied == article.url ? tick : copy}
                   alt="copy_icon"
                   className="w-[40%] h-[40%] object-contain"
-                  onClick={(e) => handleCopy(article.url)}
+                  onClick={() => handleCopy(article.url)}
                 />
               </div>
               <p className="flex-1 font-medium truncate text-gray-500 ">
