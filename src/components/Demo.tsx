@@ -1,13 +1,40 @@
 import { useState, useEffect } from "react";
 import { copy, linkIcon, loader, tick } from "../assets";
+import { useLazyGetSummaryQuery } from "../services/article";
+import type { ArticleDTO } from "../lib/types";
 
 const Demo = () => {
-  const [article, setArticle] = useState({
-    url: "",
-    summary: "",
-  });
+  const [getSummary, { error, isFetching }] = useLazyGetSummaryQuery();
 
-  const handlerSubmit = async (e: React.FormEvent<HTMLFormElement>) => {};
+  const [article, setArticle] = useState<ArticleDTO>({} as ArticleDTO);
+
+  const [allArticles, setAllArticles] = useState<ArticleDTO[]>([]);
+
+  useEffect(() => {
+    const articlesFromLocalStorage = localStorage.getItem("articles");
+
+    if (articlesFromLocalStorage) {
+      let allArticlesSaved = JSON.parse(articlesFromLocalStorage);
+      setAllArticles(allArticlesSaved);
+    }
+  }, []);
+
+  const handlerSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const { data } = await getSummary({ url: article.url });
+
+    if (data?.summary) {
+      const newArticle = { ...article, summary: data?.summary };
+      setArticle(newArticle);
+      setAllArticles([newArticle, ...allArticles]);
+
+      localStorage.setItem(
+        "articles",
+        JSON.stringify([newArticle, ...allArticles])
+      );
+    }
+  };
 
   return (
     <section className="mt-16 w-full max-w-lx">
@@ -27,7 +54,7 @@ const Demo = () => {
             onChange={(e) => {
               setArticle({ ...article, url: e.target.value });
             }}
-            value={""}
+            value={article.url}
             required
             placeholder="Enter the URL"
           />
@@ -39,6 +66,53 @@ const Demo = () => {
             ↵
           </button>
         </form>
+
+        <div className="flex flex-col gap-1 max-h-60 overflow-y-auto">
+          {allArticles.map((article, index) => (
+            <div
+              className="link_card"
+              key={index}
+              onClick={() => setArticle(article)}
+            >
+              <div className="copy_btn">
+                <img
+                  src={copy}
+                  alt="copy_icon"
+                  className="w-[40%] h-[40%] object-contain"
+                />
+              </div>
+              <p className="flex-1 font-medium truncate text-gray-500 ">
+                {article.url}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="my-10 max-w-full flex justify-center items-center">
+        {isFetching ? (
+          <img src={loader} alt="loader" className="w-20 h-20 object-contain" />
+        ) : error ? (
+          <p className="font-inter font-bold text-center">
+            Well, that wasn't supposed to happen... <br></br>{" "}
+            <span className="text-gray-700 font-normal">
+              {error?.data?.error}
+            </span>{" "}
+          </p>
+        ) : (
+          article.summary && (
+            <div className="flex flex-col gap-3">
+              <h2 className="font-bold text-gray-600 text-xl">
+                Article <span className="blue_gradient">Summary</span>
+              </h2>
+              <div className="summary_box">
+                <p className="font-inter font-medium text-sm text-gray-700">
+                  {article.summary}
+                </p>
+              </div>
+            </div>
+          )
+        )}
       </div>
     </section>
   );
